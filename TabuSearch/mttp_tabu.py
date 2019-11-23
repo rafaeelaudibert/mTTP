@@ -1,6 +1,25 @@
+import argparse
+
+def read_instance(instance_file):
+    distances_matrix = []
+    f = open(instance_file, "r")
+    for line in f:
+        row = line.rstrip("\n\r")
+        row_values = [int(s) for s in row.split() if s.isdigit()]
+        distances_matrix.append(row_values)
 
 
-def main():
+    schedule_matrix = [row[:] for row in distances_matrix]
+
+    row_size = column_size = len(schedule_matrix)
+
+    for i in range(row_size):
+        for j in range(column_size):
+            schedule_matrix[i][j] = 0
+
+    return distances_matrix, schedule_matrix
+
+def main(distances_matrix, schedule_matrix, neighbourhood_size, idle_iterations):
 
     # Step 0: create variables attached to tabu search logic implementation
     graph = [] # configuração do grafo de entrada *Na entrada que for definida/ED*
@@ -21,7 +40,7 @@ def main():
     objective_function_value = evaluate_instance_objective_function(graph, initial_solution)
 
     # Generate neighbours (neighbourhood)
-    neighbours = generate_neighbours(best_solution, max_vizinhos)
+    neighbours = generate_neighbours(best_solution, max_vizinhos, tabu_list)
 
     # Calculate neighbours avaliation
     neighbours_avaliation = evaluate_neighbours(neighbourhood, graph, max_vizinhos)
@@ -42,7 +61,7 @@ def main():
     # Step2: iterate the generation of neighours until $(bt_max) consecutive iterations do not find a new best solution
     while iteration - best_iteration <= bt_max:
         # Generate neighbours (neighbourhood)
-        neighbours = generate_neighbours(best_solution, max_vizinhos)
+        neighbours = generate_neighbours(best_solution, max_vizinhos, tabu_list)
 
         # Calculate neighbours avaliation
         neighbours_avaliation = evaluate_neighbours(neighbourhood, graph, max_vizinhos)
@@ -59,4 +78,10 @@ def main():
             best_iteration +=1
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='Process path')
+    parser.add_argument('-f', '--txt', required=True, type=str, help='Input instance txt path')
+    parser.add_argument('-n', '--size', required=True, type=int, help='Input neighbourhood size')
+    parser.add_argument('-i', '--iter', required=True, type=int, help='Input iterations')
+    args = parser.parse_args()
+    distances_matrix, schedule_matrix = read_instance(args.txt)
+    # main(distances_matrix, schedule_matrix, args.size, args.iter)
