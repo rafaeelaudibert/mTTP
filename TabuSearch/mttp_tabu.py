@@ -1,5 +1,7 @@
 import argparse
 
+from neighbourhood import *
+
 def read_instance(instance_file):
     distances_matrix = []
     f = open(instance_file, "r")
@@ -11,16 +13,39 @@ def read_instance(instance_file):
 
     schedule_matrix = [row[:] for row in distances_matrix]
 
-    row_size = column_size = len(schedule_matrix)
+    teams = len(schedule_matrix)
+    row_size = len(schedule_matrix)
+    column_size = len(schedule_matrix) - 1
 
     for i in range(row_size):
         for j in range(column_size):
-            schedule_matrix[i][j] = 0
+            schedule_matrix[i][j] = None
 
-    return distances_matrix, schedule_matrix
 
-def main(distances_matrix, schedule_matrix, neighbourhood_size, idle_iterations):
+    return distances_matrix, schedule_matrix, teams
 
+def main(distances_matrix, schedule_matrix_original, teams, neighbourhood_size, idle_iterations):
+
+    games_location_matrix, schedule_matrix = calculate_initial_solution(schedule_matrix_original, teams)
+
+
+    print('Distances matrix')
+    for l in distances_matrix:
+        print(l)
+
+    print('\nMatchups')
+    for l in schedule_matrix:
+        print(l)
+
+    print('\nLocations')
+    for row in games_location_matrix:
+        print(row)
+
+
+
+
+#TODO: Transferir main() para tabu_search
+def tabu_search(arg):
     # Step 0: create variables attached to tabu search logic implementation
     graph = [] # configuração do grafo de entrada *Na entrada que for definida/ED*
     iteration = best_iteration = 0
@@ -83,5 +108,5 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--size', required=True, type=int, help='Input neighbourhood size')
     parser.add_argument('-i', '--iter', required=True, type=int, help='Input iterations')
     args = parser.parse_args()
-    distances_matrix, schedule_matrix = read_instance(args.txt)
-    # main(distances_matrix, schedule_matrix, args.size, args.iter)
+    distances_matrix, schedule_matrix, teams = read_instance(args.txt)
+    main(distances_matrix, schedule_matrix, teams, args.size, args.iter)
